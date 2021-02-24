@@ -1,0 +1,168 @@
+// Hangman
+// The classic game of hangman
+// using vector, randomizer and functions
+// preprocessor directives
+#include <iostream>
+#include <string>
+#include <vector>
+#include <algorithm>
+#include <ctime>
+// using std lib to alleviate typing cout::
+using namespace std;
+// global declarations
+vector<string> words;       // collection of possible words to guess
+const int MAX_WRONG = 8;    // maximum number of incorrect guesses allowed
+char guess;
+void playAgain();
+void hangmanSetup();
+void hangman(char);
+char userGuess();
+// main function displays user introduction and order of operations w/ functions
+int main()
+{
+    cout << "\n";
+    cout << "\t************************************************\n";
+    cout << "\tGuess a random word, letter by letter, until the\n";
+    cout << "\tword is found or lose a man to the gallows.  Go!\n";
+    cout << "\t************************************************\n";
+    cout << "\t_ _ _ _ _ _ H _ A _ N _ G _ M _ A _ N _ _ _ _ _ _\n";
+
+    hangmanSetup();
+    userGuess();
+    hangman(guess);
+    
+    return 0;
+}
+// function used to determine if play wishes
+// to play again after game over
+void playAgain()
+{
+	// asking user to play again
+    char yesOrNo;
+    cout << "\nWould you like try Hangman again? (Y or N) \t";
+	// user input becomes value of yesOrNo variable
+    cin >> yesOrNo;
+    // if user entered a 'Y' or 'y' execute code in brackets
+    if (yesOrNo == 'Y' || yesOrNo == 'y')
+    {
+        cout << "\n";
+        main();
+    }
+	// if user entered a 'N' or 'n' execute code in brackets
+    else if (yesOrNo == 'N' || yesOrNo == 'n')
+    {
+        exit(0);
+    }
+	// if user input was not a Y or N answer, execute this code
+    else
+    {
+        cout << "The answer you have given is invalid.\n\n";
+        playAgain();
+    }
+}
+// function to gather user input (a letter guess)
+// returns user input
+char userGuess()
+{
+    cout << "\nEnter your guess: ";
+    cin >> guess;
+    //make uppercase since secret word in uppercase
+    guess = toupper(guess);
+	
+    return guess;
+}
+// function to populate, then randomize vector
+void hangmanSetup()
+{
+	// populate words<string> vector
+	// started with 'push_back' but debugger suggested 'emplace_back'
+    words.emplace_back("VECTOR");
+    words.emplace_back("ITERATOR");
+    words.emplace_back("INTEGER");
+    words.emplace_back("FUNCTION");
+    words.emplace_back("HEADER FILE");
+    words.emplace_back("VARIABLE");
+    words.emplace_back("CONSTANT");
+    words.emplace_back("ARRAY");
+    words.emplace_back("PARAMETER");
+    words.emplace_back("ARGUMENT");
+    words.emplace_back("ELEMENT");
+    words.emplace_back("INDEX");
+    words.emplace_back("VOID");
+    words.emplace_back("FIND");
+    words.emplace_back("LENGTH");
+    words.emplace_back("SIZE");
+    words.emplace_back("SCOPE");
+    words.emplace_back("INLINE");
+    // random seed generator
+    srand(static_cast<unsigned int>(time(0)));
+	// using vector begin() and end() methods to shuffle through vector
+    random_shuffle(words.begin(), words.end());
+}
+// function taking char guess as input
+// determines whether user guess is/is not a char in the word
+void hangman(char guess)
+{
+    // word to guess
+    const string THE_WORD = words[0];
+    // number of incorrect guesses
+    int wrong = 0;
+    // word guessed so far
+    string soFar(THE_WORD.size(), '+');
+    // letters already guessed/value is cleared on player start
+    string usedLetters = "";                           
+    // as long as user has guesses remaining
+	// and has yet to guess the word
+    while ((wrong < MAX_WRONG) && (soFar != THE_WORD))
+    {
+        cout << "\nYou have " << (MAX_WRONG - wrong);
+        cout << " incorrect guesses left.\n";
+        cout << "You've used the following letters:\t\"" << usedLetters << "\"" << endl;
+        cout << "\nSo far, the word is:\t\" " << soFar << " \"" << endl;
+        // if the user guess was not already used
+        while (usedLetters.find(guess) != string::npos)
+        {
+            cout << "\nEnter your guess: ";
+            cin >> guess;
+        	// make user guess uppercase
+            guess = toupper(guess);
+        }
+        // increment the value of used letters with the value of user guess
+        usedLetters += guess;
+        // is the user's guess part of the word?
+        if (THE_WORD.find(guess) != string::npos)
+        {
+            //update soFar to include newly guessed letter
+            for (int i = 0; i < THE_WORD.length(); ++i)
+            {
+                if (THE_WORD[i] == guess)
+                {
+                    soFar[i] = guess;
+                    cout << "Good guess...\n";
+                }
+            }
+        }
+        else
+        {
+            cout << "\nSorry, " << guess << " isn't in the word.\n";
+        	cout << "Try again...\n",
+            ++wrong;
+        }
+    }
+	// if user accumulates the maximum number of wrong
+	// guesses, let player know and ask to play again
+	if (wrong == MAX_WRONG)
+	{
+        cout << "\nUnfortunate!  We have lost another man to the gallows.\n";
+        cout << "The word was " << THE_WORD << "\n\n\n";
+        playAgain();		
+	}
+	// if user correctly guesses the word
+	// let the player know and ask to play again
+	if(soFar == THE_WORD)
+	{
+        cout << "\nAwesome!  You saved a man from the gallows.\n";
+        cout << "The word is " << THE_WORD << "\n\n\n";
+        playAgain();
+	}
+}
